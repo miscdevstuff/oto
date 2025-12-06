@@ -68,6 +68,13 @@ bool AudioStreamBuilder::isAAudioRecommended() {
 }
 
 AudioStream *AudioStreamBuilder::build() {
+    // NUCLEAR OPTION: Force AAudio creation regardless of OS checks.
+    // This bypasses isAAudioSupported() and prevents fallback to OpenSLES.
+    return new AudioStreamAAudio(*this);
+}
+
+/* Force aaudio only with above function
+AudioStream *AudioStreamBuilder::build() {
     AudioStream *stream = nullptr;
     if (isAAudioRecommended() && mAudioApi != AudioApi::OpenSLES) {
         stream = new AudioStreamAAudio(*this);
@@ -82,7 +89,7 @@ AudioStream *AudioStreamBuilder::build() {
         }
     }
     return stream;
-}
+} */
 
 bool AudioStreamBuilder::isCompatible(AudioStreamBase &other) {
     return (getSampleRate() == oboe::Unspecified || getSampleRate() == other.getSampleRate())

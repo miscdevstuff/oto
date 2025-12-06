@@ -73,6 +73,7 @@ const char *Stream::Play(int sample_rate, int channel_num,
 
   if (!stream_) {
     oboe::AudioStreamBuilder builder;
+    builder.setAudioApi(oboe::AudioApi::AAudio); // Force aaudio
     builder.setDirection(oboe::Direction::Output)
         ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
         ->setSharingMode(oboe::SharingMode::Shared)

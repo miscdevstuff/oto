@@ -18,8 +18,8 @@ package oboe
 // AAudio doesn't care about plugging in/out of a headphone.
 // See https://github.com/google/oboe/wiki/TechNote_Disconnect
 
-// #cgo CXXFLAGS: -std=c++17 -DOBOE_ENABLE_AAUDIO=0
-// #cgo LDFLAGS: -llog -lOpenSLES -static-libstdc++
+// #cgo CXXFLAGS: -std=c++17 -DOBOE_ENABLE_AAUDIO=1
+// #cgo LDFLAGS: -llog -lOpenSLES -laaudio -static-libstdc++
 //
 // #include "binding_android.h"
 import "C"
