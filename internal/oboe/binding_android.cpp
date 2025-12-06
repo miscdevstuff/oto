@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <sys/resource.h>
+#include <android/log.h>
+
 #include "binding_android.h"
 
 #include "_cgo_export.h"
@@ -81,10 +84,10 @@ const char *Stream::Play(int sample_rate, int channel_num,
         ->setChannelCount(channel_num_)
         ->setSampleRate(sample_rate_)
         ->setDataCallback(this);
-    if (buffer_size_in_bytes) {
+    /* if (buffer_size_in_bytes) {
       int buffer_size_in_frames = buffer_size_in_bytes / channel_num / 4;
       builder.setBufferCapacityInFrames(buffer_size_in_frames);
-    }
+    } */
     oboe::Result result = builder.openStream(stream_);
     if (result != oboe::Result::OK) {
       return oboe::convertToText(result);
@@ -160,6 +163,18 @@ oboe::DataCallbackResult Stream::onAudioReady(oboe::AudioStream *oboe_stream,
 Stream::Stream() = default;
 
 void Stream::Loop(int num_frames) {
+  // --- BIG CORE FIX START ---
+  // Set thread priority to -19 (Urgent Audio). 
+  // This tells the Android scheduler to prioritize this thread and run it on a Big Core.
+  // Standard priority is 0. Background is 10. Urgent Audio is -19.
+  int result = setpriority(PRIO_PROCESS, 0, -19);
+  if (result != 0) {
+      __android_log_print(ANDROID_LOG_WARN, "IkemenAudio", "Failed to set priority: %d", result);
+  } else {
+      __android_log_print(ANDROID_LOG_INFO, "IkemenAudio", "Success: Audio thread priority set to -19 (Urgent)");
+  }
+  // --- BIG CORE FIX END ---
+
   std::vector<float> tmp(num_frames * channel_num_ * 3);
   for (;;) {
     {
